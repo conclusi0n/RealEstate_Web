@@ -1,0 +1,42 @@
+{% extends 'listings/listing_detail.html' %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">{{ listing.title }} (For Rent)</h2>
+    <div class="row">
+        <div class="col-md-7">
+            <div class="main-image-wrapper mb-3">
+                {% with main_image=listing.images.first %}
+                    {% if main_image %}
+                        <img src="{{ main_image.image.url }}" id="main-img" class="main-img" alt="{{ listing.title }}">
+                    {% else %}
+                        <img src="{% static 'default.jpg' %}" id="main-img" class="main-img" alt="Default Image">
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <div class="d-flex mb-4">
+                {% for img in listing.images.all %}
+                    <img src="{{ img.image.url }}" class="thumb-img{% if forloop.first %} selected{% endif %}" alt="Thumbnail" onclick="setMainImage(this)">
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-5">
+            <h4>Details</h4>
+            <ul class="list-group mb-3">
+                <li class="list-group-item"><strong>Price:</strong>  रु {{ listing.price }} Crore</li>
+                <li class="list-group-item"><strong>City:</strong> {{ listing.city }}</li>
+                <li class="list-group-item"><strong>Area:</strong> {{ listing.area }}</li>
+                <li class="list-group-item"><strong>Purpose:</strong> {{ listing.purpose }}</li>
+                <li class="list-group-item"><strong>Property Type:</strong> {{ listing.property_type }}</li>
+                <li class="list-group-item"><strong>Year Built:</strong> {{ listing.year_built }}</li>
+                <li class="list-group-item"><strong>Furnishing:</strong> {{ listing.furnishing }}</li>
+                <li class="list-group-item"><strong>Municipality:</strong> {{ listing.municipality }}</li>
+                <li class="list-group-item"><strong>Ward No:</strong> {{ listing.ward_no }}</li>
+                <li class="list-group-item"><strong>Ring Road Distance:</strong> {{ listing.ring_road_distance }}</li>
+            </ul>
+            <h5>Description</h5>
+            <p>{{ listing.description }}</p>
+        </div>
+    </div>
+    <a href="/rent/" class="btn btn-secondary mt-4">Back to Rentals</a>
+</div>
+{% endblock %}

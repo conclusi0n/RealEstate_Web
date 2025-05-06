@@ -1,0 +1,39 @@
+{% extends 'listings/listings.html' %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Available Rentals</h2>
+    <form method="get" class="row g-3 mb-4">
+        <!-- Same search/sort form as listings.html -->
+    </form>
+    <div class="row">
+        {% for listing in listings %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="main-image-wrapper">
+                    {% with main_image=listing.images.first %}
+                        {% if main_image %}
+                            <img src="{{ main_image.image.url }}" id="main-img-{{ listing.id }}" class="card-img-top main-img" alt="{{ listing.title }}">
+                        {% else %}
+                            <img src="{% static 'default.jpg' %}" id="main-img-{{ listing.id }}" class="card-img-top main-img" alt="Default Image">
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ listing.title }}</h5>
+                    <p class="card-text">{{ listing.description|truncatewords:20 }}</p>
+                    <p class="text-muted"><span style="font-weight:bold">रु {{ listing.price }} Crore</span></p>
+                    <a href="{% url 'rent_listing_detail' listing.id %}" class="btn btn-primary">View Details</a>
+                    <div class="mt-3 d-flex">
+                        {% for img in listing.images.all|slice:'0:5' %}
+                            <img src="{{ img.image.url }}" class="thumb-img{% if forloop.first %} selected{% endif %}" alt="Thumbnail" data-listing="{{ listing.id }}" onclick="setMainImage(this, '{{ listing.id }}')">
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>No rental listings available at the moment.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

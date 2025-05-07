@@ -1,42 +1,102 @@
-{% extends 'listings/listing_detail.html' %}
-{% block content %}
-<div class="container">
-    <h2 class="mb-4">{{ listing.title }} (For Rent)</h2>
-    <div class="row">
-        <div class="col-md-7">
-            <div class="main-image-wrapper mb-3">
-                {% with main_image=listing.images.first %}
-                    {% if main_image %}
-                        <img src="{{ main_image.image.url }}" id="main-img" class="main-img" alt="{{ listing.title }}">
-                    {% else %}
-                        <img src="{% static 'default.jpg' %}" id="main-img" class="main-img" alt="Default Image">
-                    {% endif %}
-                {% endwith %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Listing Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #e6f0fa; }
+        .listing-detail-img { width: 100%; max-height: 420px; object-fit: cover; border-radius: 8px; }
+        .listing-thumb-img { width: 64px; height: 64px; object-fit: cover; border-radius: 4px; border: 1px solid #e0e0e0; margin-right: 6px; }
+        .detail-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 24px; margin-bottom: 24px; }
+        .detail-section-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 12px; }
+        .overview-table td { padding: 4px 12px 4px 0; }
+        .back-btn { margin-bottom: 18px; }
+    </style>
+</head>
+<body class="antialiased bg-gray-200 font-sans">
+    <!-- Header (copied from general listing) -->
+    <header class="bg-white shadow mb-4" style="border-bottom: 5px solid #8fd32a;">
+        <div class="container d-flex align-items-center justify-content-between py-3">
+            <div class="d-flex align-items-center gap-2">
+                <a href="/">
+                    <img src="{% static 'logo.png' %}" alt="Logo" style="height:48px;width:auto;">
+                </a>
+                <a href="/" class="text-decoration-none">
+                    <span class="fs-3 fw-bold text-primary">RealEstate Company</span>
+                </a>
             </div>
-            <div class="d-flex mb-4">
-                {% for img in listing.images.all %}
-                    <img src="{{ img.image.url }}" class="thumb-img{% if forloop.first %} selected{% endif %}" alt="Thumbnail" onclick="setMainImage(this)">
+            <nav class="d-flex align-items-center gap-3">
+                <ul class="nav gap-2 mb-0">
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/">All Properties</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/about/">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/?purpose=Sell">Buy</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/?purpose=Rent">Rent</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/sold/">Sold Properties</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/agents/">Agents</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/contact/">Contact</a></li>
+                </ul>
+                <a href="/authorize.html" class="btn btn-success ms-3 px-4 fw-bold">Login / Sign Up</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Back to Listings Button -->
+        <a href="/" class="btn btn-outline-primary back-btn">&larr; Back to Listings</a>
+
+        <!-- Main Image and Thumbnails -->
+        <div class="detail-card">
+            <img src="{{ listing.images.first.image.url|default:'https://via.placeholder.com/800x400' }}" class="listing-detail-img mb-3" alt="Main Image">
+            <div class="d-flex mb-3">
+                {% for img in listing.images.all|slice:':6' %}
+                    <img src="{{ img.image.url }}" class="listing-thumb-img" alt="Thumbnail">
                 {% endfor %}
             </div>
+            <h2 class="mb-2">{{ listing.title }}</h2>
+            <div class="mb-2 text-muted">{{ listing.city }}, {{ listing.area }}</div>
+            <div class="mb-2"><span class="badge bg-success">{{ listing.property_type }}</span> <span class="badge bg-info">Year Built: {{ listing.year_built }}</span></div>
+            <div class="mb-2 fs-4 fw-bold text-primary">रु {{ listing.price }} Lakh</div>
+            <div class="mb-2">Product ID: <b>ERN-{{ listing.id }}</b></div>
+            <div class="d-flex gap-4 mb-2">
+                <div><img src="https://png.pngtree.com/png-vector/20220618/ourmid/pngtree-bedroom-icon-in-trendy-flat-style-png-image_5209327.png" style="height:28px;vertical-align:middle;"> <b>{{ listing.bedrooms }}</b> Bedrooms</div>
+                <div><img src="https://img.favpng.com/3/25/19/computer-icons-clip-art-vector-graphics-house-favicon-png-favpng-anH4UARReXVPp7k1xTkGdvGE1.jpg" style="height:28px;vertical-align:middle;"> <b>{{ listing.floors }}</b> Floors</div>
+                <div><img src="https://img.freepik.com/premium-vector/area-dimension-icon-set-square-size-space-plot-room-vector-symbol-black-filled-outlined-style-measurement-accuracy-sign_268104-2543.jpg" style="height:28px;vertical-align:middle;"> <b>{{ listing.area }}</b> Area</div>
+            </div>
         </div>
-        <div class="col-md-5">
-            <h4>Details</h4>
-            <ul class="list-group mb-3">
-                <li class="list-group-item"><strong>Price:</strong>  रु {{ listing.price }} Crore</li>
-                <li class="list-group-item"><strong>City:</strong> {{ listing.city }}</li>
-                <li class="list-group-item"><strong>Area:</strong> {{ listing.area }}</li>
-                <li class="list-group-item"><strong>Purpose:</strong> {{ listing.purpose }}</li>
-                <li class="list-group-item"><strong>Property Type:</strong> {{ listing.property_type }}</li>
-                <li class="list-group-item"><strong>Year Built:</strong> {{ listing.year_built }}</li>
-                <li class="list-group-item"><strong>Furnishing:</strong> {{ listing.furnishing }}</li>
-                <li class="list-group-item"><strong>Municipality:</strong> {{ listing.municipality }}</li>
-                <li class="list-group-item"><strong>Ward No:</strong> {{ listing.ward_no }}</li>
-                <li class="list-group-item"><strong>Ring Road Distance:</strong> {{ listing.ring_road_distance }}</li>
-            </ul>
-            <h5>Description</h5>
-            <p>{{ listing.description }}</p>
+
+        <!-- Contact Agent Card (demo) -->
+        <div class="detail-card d-flex align-items-center justify-content-between">
+            <div>
+                <div class="fw-bold mb-1">Contact For Enquiry</div>
+                <div>Agent: <b>Demo Agent</b></div>
+                <div>Phone: <b>+977-9800000000</b></div>
+            </div>
+            <a href="#" class="btn btn-primary">Contact Agent</a>
+        </div>
+
+        <!-- Overview Table -->
+        <div class="detail-card">
+            <div class="detail-section-title">Overview</div>
+            <table class="overview-table">
+                <tr><td>Property Type:</td><td>{{ listing.property_type }}</td></tr>
+                <tr><td>Purpose:</td><td>{{ listing.purpose }}</td></tr>
+                <tr><td>Year Built:</td><td>{{ listing.year_built }}</td></tr>
+                <tr><td>City/Area:</td><td>{{ listing.city }}, {{ listing.area }}</td></tr>
+                <tr><td>Floors:</td><td>{{ listing.floors }}</td></tr>
+                <tr><td>Bedrooms:</td><td>{{ listing.bedrooms }}</td></tr>
+                <tr><td>Product ID:</td><td>ERN-{{ listing.id }}</td></tr>
+                <tr><td>Price:</td><td>रु {{ listing.price }} Lakh</td></tr>
+            </table>
+        </div>
+
+        <!-- Property Details -->
+        <div class="detail-card">
+            <div class="detail-section-title">Property Details</div>
+            <div>{{ listing.description|linebreaks }}</div>
         </div>
     </div>
-    <a href="/rent/" class="btn btn-secondary mt-4">Back to Rentals</a>
-</div>
-{% endblock %}
+</body>
+</html>

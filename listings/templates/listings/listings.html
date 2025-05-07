@@ -3,131 +3,255 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Real Estate Listings</title>
+    <title>RealEstate Listings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .main-img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
+        body {
+            background-color: #e6f0fa;
         }
-        .thumb-img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            margin-right: 5px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
+        /* --- Styles from Search Box --- */
+        .searchbox-container {
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            padding: 16px 20px 10px 20px;
+            max-width: 900px;
+            margin: 40px auto;
+        }
+        .searchbox-tabs {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .searchbox-tab {
+            border: none;
+            outline: none;
+            padding: 8px 28px;
+            font-weight: 500;
+            font-size: 1.1rem;
+            background: #8fd32a;
+            color: #fff;
+            border-radius: 0;
+            margin-right: 2px;
+            transition: background 0.2s;
             cursor: pointer;
-            transition: border 0.2s;
         }
-        .thumb-img.selected {
-            border: 2px solid #007bff;
+        .searchbox-tab.active {
+            background: #fff;
+            color: #0074d9;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            border: 2px solid #8fd32a;
+            border-bottom: none;
+        }
+        .searchbox-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .searchbox-form .form-select,
+        .searchbox-form .form-control {
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            height: 48px;
+            font-size: 1rem;
+        }
+        .searchbox-form .form-select {
+            min-width: 160px;
+            color: #aaa;
+        }
+        .searchbox-form .form-control {
+            flex: 1;
+        }
+        .searchbox-form .search-btn {
+            background: #8fd32a;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            padding: 0 36px;
+            height: 48px;
+            transition: background 0.2s;
+        }
+        .searchbox-form .search-btn:hover {
+            background: #7cc01a;
+        }
+        .searchbox-extra {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .searchbox-extra .form-control {
+            height: 40px;
+            font-size: 0.98rem;
+        }
+        .listing-thumbs {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+            margin-bottom: 6px;
+        }
+        .listing-thumb-img {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+        .listing-card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        .card-fixed-height {
+            min-height: 480px;
+            max-height: 480px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .product-id-thin {
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
         }
     </style>
 </head>
-<body>
-    <nav class="navbar navbar-dark bg-dark mb-4">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">RealEstate</a>
+<body class="antialiased bg-gray-200 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow mb-4" style="border-bottom: 5px solid #8fd32a;">
+        <div class="container d-flex align-items-center justify-content-between py-3">
+            <div class="d-flex align-items-center gap-2">
+                <a href="/">
+                    <img src="{% static 'logo.png' %}" alt="Logo" style="height:48px;width:auto;">
+                </a>
+                <a href="/" class="text-decoration-none">
+                    <span class="fs-3 fw-bold text-primary">RealEstate Company</span>
+                </a>
+            </div>
+            <nav class="d-flex align-items-center gap-3">
+                <ul class="nav gap-2 mb-0">
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/">All Properties</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/about/">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/?purpose=Sell">Buy</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/?purpose=Rent">Rent</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/sold/">Sold Properties</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/agents/">Agents</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="/contact/">Contact</a></li>
+                </ul>
+                <a href="/authorize.html" class="btn btn-success ms-3 px-4 fw-bold">Login / Sign Up</a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
-    <div class="container">
-        <h2 class="mb-4">Available Listings</h2>
-        <form method="get" class="row g-3 mb-4">
-            <div class="col-md-2">
-                <select name="purpose" class="form-select" style="font-weight:bold; background-color:#e9ecef;">
-                    <option value="">All</option>
-                    <option value="Sell" {% if purpose == 'Sell' %}selected style="background-color:#ffe082;"{% endif %}>For Sale</option>
-                    <option value="Rent" {% if purpose == 'Rent' %}selected style="background-color:#b3e5fc;"{% endif %}>For Rent</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <input type="text" name="id" class="form-control" placeholder="Search by Product ID (ERN-...)" value="{{ id }}">
-            </div>
-            <div class="col-md-2">
-                <input type="text" name="q" class="form-control" placeholder="Search by name..." value="{{ query }}">
-            </div>
-            <div class="col-md-2">
-                <select name="type" class="form-select">
-                    <option value="">All Types</option>
-                    {% for t in all_types %}
-                        <option value="{{ t }}" {% if property_type == t %}selected{% endif %}>{{ t }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-2">
-                <select name="city" class="form-select">
-                    <option value="">All Locations</option>
-                    {% for c in all_cities %}
-                        <option value="{{ c }}" {% if city == c %}selected{% endif %}>{{ c }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-1">
-                <input type="number" name="min_price" class="form-control" placeholder="Min Price" value="{{ min_price }}">
-            </div>
-            <div class="col-md-1">
-                <input type="number" name="max_price" class="form-control" placeholder="Max Price" value="{{ max_price }}">
-            </div>
-            <div class="col-md-2">
-                <select name="sort" class="form-select">
-                    <option value="price" {% if sort == 'price' %}selected{% endif %}>Price (Low to High)</option>
-                    <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price (High to Low)</option>
-                    <option value="name" {% if sort == 'name' %}selected{% endif %}>Name</option>
-                    <option value="type" {% if sort == 'type' %}selected{% endif %}>Type</option>
-                    <option value="city" {% if sort == 'city' %}selected{% endif %}>Location</option>
-                </select>
-            </div>
-            <div class="col-md-1">
-                <button type="submit" class="btn btn-primary w-100">Search</button>
-            </div>
-        </form>
-        <div class="row">
-            {% for listing in listings %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="main-image-wrapper">
-                        {% with main_image=listing.images.first %}
-                            {% if main_image %}
-                                <img src="{{ main_image.image.url }}" id="main-img-{{ listing.id }}" class="card-img-top main-img" alt="{{ listing.title }}">
-                            {% else %}
-                                <img src="{% static 'default.jpg' %}" id="main-img-{{ listing.id }}" class="card-img-top main-img" alt="Default Image">
-                            {% endif %}
-                        {% endwith %}
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ listing.title }}</h5>
-                        <p class="card-text">{{ listing.description|truncatewords:20 }}</p>
-                        <p class="text-muted"><span style="font-weight:bold">रु {{ listing.price }} Crore</span></p>
-                        <p class="text-secondary mb-1">Property ID: <span style="font-family:monospace">ERN-{{ listing.id }}</span></p>
-                        <a href="{% url 'listing_detail' listing.id %}" class="btn btn-primary">View Details</a>
-                        <div class="mt-3 d-flex">
-                            {% for img in listing.images.all|slice:'0:5' %}
-                                <img src="{{ img.image.url }}" class="thumb-img{% if forloop.first %} selected{% endif %}" alt="Thumbnail" data-listing="{{ listing.id }}" onclick="setMainImage(this, '{{ listing.id }}')">
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <p>No listings available at the moment.</p>
-            {% endfor %}
+    <!-- Purpose Tabs -->
+    <div class="container mb-3">
+        <div class="d-flex justify-content-center gap-3">
+            <a href="?purpose=" class="px-4 py-2 rounded text-white fw-bold{% if not purpose %} shadow-lg border border-secondary{% endif %}" style="background:#6c757d;">All</a>
+            <a href="?purpose=Sell" class="px-4 py-2 rounded text-white fw-bold{% if purpose == 'Sell' %} shadow-lg border border-success{% endif %}" style="background:#8fd32a;">For Sale</a>
+            <a href="?purpose=Rent" class="px-4 py-2 rounded text-white fw-bold{% if purpose == 'Rent' %} shadow-lg border border-info{% endif %}" style="background:#4fc3f7;">For Rent</a>
         </div>
     </div>
+
+    <!-- Search Box -->
+    <div class="container">
+        <div class="bg-white rounded shadow p-4 mb-3" style="max-width: 1000px; margin: 0 auto;">
+            <form method="get" class="row g-2 mb-0 align-items-end">
+                <div class="col-md-6">
+                    <input type="text" name="q" class="form-control mb-2" placeholder="Search by name..." value="{{ query }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="type" class="form-select mb-2">
+                        <option value="">All Property Types</option>
+                        {% for t in all_types %}
+                            <option value="{{ t }}" {% if property_type == t %}selected{% endif %}>{{ t }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="city" class="form-select mb-2">
+                        <option value="">All Locations</option>
+                        {% for c in all_cities %}
+                            <option value="{{ c }}" {% if city == c %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="w-100"></div>
+                <div class="col-md-3">
+                    <input type="number" name="min_price" class="form-control" placeholder="Min Price" value="{{ min_price }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" name="max_price" class="form-control" placeholder="Max Price" value="{{ max_price }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="id" class="form-control" placeholder="Search by Product ID (ERN-...)" value="{{ id }}">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Cards Grid -->
+    <div class="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for listing in listings %}
+        <a href="/listing/{{ listing.id }}/" class="listing-card-link">
+        <div class="bg-white shadow-xl rounded-lg overflow-hidden transition-transform duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl card-fixed-height">
+            <div class="bg-cover bg-center h-80 p-2" style="background-image: url('{% if listing.images.first %}{{ listing.images.first.image.url }}{% else %}https://via.placeholder.com/400{% endif %}')">
+            </div>
+            <div class="listing-thumbs px-4" style="margin-top:0px; margin-bottom:2px;">
+                {% for img in listing.images.all|slice:':4' %}
+                    <img src="{{ img.image.url }}" class="listing-thumb-img" alt="Thumbnail">
+                {% endfor %}
+            </div>
+            <div class="p-2">
+                <p class="uppercase tracking-wide text-sm font-bold text-gray-700">{{ listing.property_type }} • Year Built: {{ listing.year_built }}</p>
+                <p class="text-2xl text-gray-900">रु {{ listing.price }} Crore</p>
+                <p class="text-gray-700">{{ listing.city }}, {{ listing.area }}</p>
+            </div>
+            <div class="flex p-2 border-t border-gray-300 text-gray-700 justify-between">
+                <div class="flex-1 inline-flex items-center justify-center">
+                    <img src="https://png.pngtree.com/png-vector/20220618/ourmid/pngtree-bedroom-icon-in-trendy-flat-style-png-image_5209327.png" alt="Bedroom" style="height:32px;width:auto;margin-right:6px;">
+                    <span class="text-gray-900 font-bold">{{ listing.bedrooms }}</span>
+                </div>
+                <div class="flex-1 inline-flex items-center justify-center">
+                    <img src="https://img.favpng.com/3/25/19/computer-icons-clip-art-vector-graphics-house-favicon-png-favpng-anH4UARReXVPp7k1xTkGdvGE1.jpg" alt="Floors" style="height:32px;width:auto;margin-right:6px;">
+                    <span class="text-gray-900 font-bold">{{ listing.floors }} floors</span>
+                </div>
+                <div class="flex-1 inline-flex items-center justify-center">
+                    <img src="https://img.freepik.com/premium-vector/area-dimension-icon-set-square-size-space-plot-room-vector-symbol-black-filled-outlined-style-measurement-accuracy-sign_268104-2543.jpg" alt="Area" style="height:32px;width:auto;margin-right:6px;">
+                    <span class="text-gray-900 font-bold">{{ listing.area }}</span>
+                </div>
+            </div>
+            <div class="px-4 pt-0 pb-0 border-t border-gray-300 bg-gray-100 product-id-thin" style="padding-top:2px !important; padding-bottom:2px !important;">
+                <div class="text-xs uppercase font-bold text-gray-600 tracking-wide">Product ID</div>
+                <div class="pt-1">
+                    <p class="font-bold text-gray-900">ERN-{{ listing.id }}</p>
+                </div>
+            </div>
+        </div>
+        </a>
+        {% endfor %}
+    </div>
+
     <script>
-        function setMainImage(thumb, listingId) {
-            var mainImg = document.getElementById('main-img-' + listingId);
-            mainImg.src = thumb.src;
-            // Remove 'selected' from all thumbs in this card
-            var thumbs = thumb.parentElement.querySelectorAll('.thumb-img');
-            thumbs.forEach(function(img) {
-                img.classList.remove('selected');
+    // Search Tab UI toggle
+    document.querySelectorAll('.searchbox-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.searchbox-tab').forEach(function(t) {
+                t.classList.remove('active');
             });
-            // Add 'selected' to clicked thumb
-            thumb.classList.add('selected');
-        }
+            tab.classList.add('active');
+            // Set hidden input value for purpose
+            var value = tab.textContent.trim().toLowerCase();
+            if (value === 'all') {
+                document.getElementById('purpose-input').value = 'all';
+            } else if (value === 'for rent') {
+                document.getElementById('purpose-input').value = 'rent';
+            } else if (value === 'for sale') {
+                document.getElementById('purpose-input').value = 'sale';
+            }
+        });
+    });
     </script>
 </body>
 </html>
